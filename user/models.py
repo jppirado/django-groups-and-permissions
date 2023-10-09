@@ -1,3 +1,6 @@
+from django.db.models.signals import post_save
+from django.contrib.auth.models import Group
+from django.dispatch import receiver
 from django.utils import timezone
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin, Group, Permission
 from django.db import models
@@ -93,21 +96,47 @@ class MyCustomUser(AbstractBaseUser, PermissionsMixin):
     def __str__(self):
         return self.email
 
-    def save(self,  *args, **kwargs):
+    def save(self):
+        super().save()
 
-        if self.role == 1:
-            perm = Permission.objects.filter(codename__in=["add_post", "change_post", "delete_post", "view_post"])
-            for item in perm:
-                self.user_permissions.add(item)
 
-        if self.role == 2:
-            perm = Permission.objects.filter(codename__in=["view_post"])
-            for item in perm:
-                self.user_permissions.add(item)
+doctor_group, created = Group.objects.get_or_create(name='Doctor')
 
-        if self.role == 3 :
-            perm = Permission.objects.filter(codename__in=["view_post", 'change_post' ])
-            for item in perm:
-                self.user_permissions.add(item)
 
-        return super().save(*args, **kwargs)
+@receiver(post_save, sender=MyCustomUser)
+def set_group_and_permissions(sender, instance, **kwargs):
+    """
+     try number is one he is one a Creator
+    """
+    if instance.role == 1:
+        editor_group, created = Group.objects.get_or_create(name='Criador')
+        permission = Permission.objects.filter(
+            codename__in=["add_post", "change_post", "delete_post", "view_post"])
+        for item in permission:
+            instance.user_permissions.add(item)
+            editor_group.permissions.add(item)
+
+        editor_group.save()
+        instance.groups.add(editor_group)
+
+    if instance.role == 2:
+        viewer_group, created = Group.objects.get_or_create(name='Viwer')
+        permission = Permission.objects.filter(codename__in=["view_post"])
+        for item in permission:
+            instance.user_permissions.add(item)
+            viewer_group.permissions.add(item)
+
+        viewer_group.save()
+        instance.groups.add(viewer_group)
+
+    if instance.role == 3:
+        editor_group, created = Group.objects.get_or_create(name='Editor')
+        permission = Permission.objects.filter(
+            codename__in=["change_post", "view_post"])
+        for item in permission:
+            instance.user_permissions.add(item)
+            editor_group.permissions.add(item)
+
+        editor_group.save()
+        instance.groups.add(editor_group)
+    return instance
