@@ -1,16 +1,16 @@
-{% if 'user.view_post' in user.get_all_permissions %}
+{% if 'user.user_view_post' in user.get_all_permissions %}
     <h1>Eu posso ver o post</h1>
 {% endif %}
 
-{% if 'user.delete_post' in user.get_all_permissions %}
+{% if 'user.user_delete_post' in user.get_all_permissions %}
     <h1> eu posso deletar o post</h1>
 {% endif %}
 
-{% if 'user.add_post' in user.get_all_permissions %}
+{% if 'user.user_add_post' in user.get_all_permissions %}
     <h1>Eu posso adicionar </h1>
 {% endif %}
 
-{% if 'user.change_post' in user.get_all_permissions %}
+{% if 'user.user_update_post' in user.get_all_permissions %}
     <h1>Eu posso alterar</h1>
 {% endif %}
 

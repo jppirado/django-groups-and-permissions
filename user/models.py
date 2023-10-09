@@ -96,9 +96,7 @@ class MyCustomUser(AbstractBaseUser, PermissionsMixin):
     def __str__(self):
         return self.email
 
-    def save(self):
-        super().save()
-
+   
 
 doctor_group, created = Group.objects.get_or_create(name='Doctor')
 
@@ -111,7 +109,7 @@ def set_group_and_permissions(sender, instance, **kwargs):
     if instance.role == 1:
         editor_group, created = Group.objects.get_or_create(name='Criador')
         permission = Permission.objects.filter(
-            codename__in=["add_post", "change_post", "delete_post", "view_post"])
+            codename__in=["user_add_post", "user_update_post", "user_delete_post", "user_view_post"])
         for item in permission:
             instance.user_permissions.add(item)
             editor_group.permissions.add(item)
@@ -121,7 +119,7 @@ def set_group_and_permissions(sender, instance, **kwargs):
 
     if instance.role == 2:
         viewer_group, created = Group.objects.get_or_create(name='Viwer')
-        permission = Permission.objects.filter(codename__in=["view_post"])
+        permission = Permission.objects.filter(codename__in=["user_view_post"])
         for item in permission:
             instance.user_permissions.add(item)
             viewer_group.permissions.add(item)
@@ -132,7 +130,7 @@ def set_group_and_permissions(sender, instance, **kwargs):
     if instance.role == 3:
         editor_group, created = Group.objects.get_or_create(name='Editor')
         permission = Permission.objects.filter(
-            codename__in=["change_post", "view_post"])
+            codename__in=["user_update_post", "user_view_post"])
         for item in permission:
             instance.user_permissions.add(item)
             editor_group.permissions.add(item)
